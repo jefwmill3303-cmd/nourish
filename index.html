@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Nourish" />
+  <meta name="theme-color" content="#7BA889" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <title>Nourish</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { 
+      height: 100%; 
+      overflow-x: hidden;
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(180deg, #F4F1EC 0%, #EBE8E2 50%, #E8E5DF 100%);
+      color: #3D4F44;
+    }
+    body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes breatheIn {
+      from { transform: scale(0.9); background: rgba(123,168,137,0.1); }
+      to { transform: scale(1.3); background: rgba(123,168,137,0.3); }
+    }
+    @keyframes breatheHold {
+      from, to { transform: scale(1.3); background: rgba(123,168,137,0.5); }
+    }
+    @keyframes breatheOut {
+      from { transform: scale(1.3); background: rgba(123,168,137,0.5); }
+      to { transform: scale(0.9); background: rgba(123,168,137,0.15); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease; }
+
+    .app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 40px; }
+
+    h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 300; letter-spacing: -0.5px; }
+    h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 300; letter-spacing: -0.3px; margin-bottom: 6px; }
+    h3 { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: #AAB5AD; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    .subtitle { font-size: 14px; color: #AAB5AD; margin-top: 4px; }
+    .body-text { font-size: 14px; color: #7A8A7E; line-height: 1.5; }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      border: none; border-radius: 14px; padding: 14px 20px; cursor: pointer;
+      transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+    }
+    .btn-primary { background: #7BA889; color: #fff; }
+    .btn-primary:active { background: #6A9A78; transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: default; }
+    .btn-secondary { background: transparent; color: #7BA889; border: 1px solid rgba(123,168,137,0.3); font-weight: 400; }
+    .btn-secondary:active { background: rgba(123,168,137,0.08); }
+    .btn-urge { background: rgba(123,168,137,0.08); color: #5A7A63; border: 1px solid rgba(123,168,137,0.2); font-weight: 400; }
+    .btn-urge:active { background: rgba(123,168,137,0.15); }
+    .btn-back { background: none; border: none; font-size: 13px; color: #AAB5AD; cursor: pointer; padding: 0; margin-bottom: 8px; font-family: 'DM Sans', sans-serif; }
+
+    .chip {
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06); background: rgba(0,0,0,0.03);
+      cursor: pointer; transition: all 0.15s ease; color: #7A8A7E;
+    }
+    .chip.selected { background: rgba(123,168,137,0.15); border-color: rgba(123,168,137,0.4); color: #3D4F44; }
+    .chip:active { transform: scale(0.97); }
+
+    .tag {
+      font-size: 11px; padding: 4px 10px; border-radius: 8px;
+      background: rgba(123,168,137,0.1); color: #6A8A72;
+      display: inline-block;
+    }
+    .tag-trigger { background: rgba(184,124,124,0.1); color: #8A6A6A; }
+
+    .card {
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(123,168,137,0.12);
+      border-radius: 16px; padding: 16px 18px; margin-bottom: 10px;
+    }
+
+    .summary-card {
+      background: rgba(123,168,137,0.06); border: 1px solid rgba(123,168,137,0.1);
+      border-radius: 20px; padding: 20px 22px;
+    }
+
+    .progress-bar { height: 3px; background: rgba(0,0,0,0.05); border-radius: 2px; margin-bottom: 28px; }
+    .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #7BA889, #96C4A0); transition: width 0.4s ease; }
+
+    .tab {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+      background: none; border: none; cursor: pointer;
+      padding: 8px 16px; border-radius: 20px;
+      color: #AAB5AD; transition: all 0.2s ease; text-transform: capitalize;
+    }
+    .tab.active { color: #3D4F44; background: rgba(123,168,137,0.1); }
+
+    textarea {
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      width: 100%; border: 1px solid rgba(123,168,137,0.2); border-radius: 14px;
+      padding: 14px 16px; background: rgba(255,255,255,0.5); color: #3D4F44;
+      resize: vertical; outline: none; line-height: 1.5;
+    }
+    textarea:focus { border-color: rgba(123,168,137,0.5); }
+
+    .breath-circle {
+      width: 200px; height: 200px; border-radius: 50%; margin: 40px auto;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(123,168,137,0.3); transition: all 3s ease-in-out;
+    }
+    .breath-label { font-family: 'Fraunces', serif; font-size: 22px; color: #4A5D52; font-weight: 300; }
+
+    .strategy-btn {
+      background: rgba(123,168,137,0.08); border: 1px solid rgba(123,168,137,0.15);
+      border-radius: 16px; padding: 16px 20px; text-align: left; cursor: pointer;
+      display: flex; align-items: center; gap: 14px; width: 100%;
+      transition: all 0.2s ease; font-family: 'DM Sans', sans-serif; font-size: 15px; color: #3D4F44;
+    }
+    .strategy-btn:active { background: rgba(123,168,137,0.18); }
+
+    .save-toast {
+      padding: 10px 24px; background: rgba(123,168,137,0.1);
+      font-size: 13px; color: #7BA889; text-align: center; animation: fadeUp 0.3s ease;
+    }
+
+    .bar-track { height: 8px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+    .empty-state { text-align: center; padding: 40px 0; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+    .px { padding-left: 24px; padding-right: 24px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="app"></div>
+
+  <script>
+    // ââ Data ââ
+    const MOODS = [
+      { emoji: "ð", label: "Calm", color: "#7BA889" },
+      { emoji: "ð", label: "Good", color: "#B8C98A" },
+      { emoji: "ð", label: "Neutral", color: "#C4B17C" },
+      { emoji: "ð", label: "Bored", color: "#A8A88A" },
+      { emoji: "ð´", label: "Tired", color: "#9A9A7C" },
+      { emoji: "ð", label: "Low", color: "#B89A7C" },
+      { emoji: "ð« ", label: "Overwhelmed", color: "#C4A07C" },
+      { emoji: "ð°", label: "Anxious", color: "#C4897C" },
+      { emoji: "ð¤", label: "Frustrated", color: "#B87C7C" },
+      { emoji: "ð¥º", label: "Lonely", color: "#A88A9A" },
+      { emoji: "ð¶âð«ï¸", label: "Numb", color: "#9AA8A0" },
+      { emoji: "ð", label: "Restless", color: "#8AA0B0" },
+    ];
+    const HUNGER = ["Not hungry", "Slightly", "Moderate", "Very", "Starving"];
+    const TRIGGERS = ["Stress","Boredom","Loneliness","Tiredness","Habit","Skipped meal","Emotions","Social","Restriction","Other"];
+    const STRATEGIES = [
+      { title: "5-4-3-2-1 Grounding", desc: "Name 5 things you see, 4 you hear, 3 you touch, 2 you smell, 1 you taste.", icon: "ð¿" },
+      { title: "Body Scan", desc: "Close your eyes. Slowly notice each part of your body from toes to head. No judgment, just notice.", icon: "ð«§" },
+      { title: "Delay & Decide", desc: "Set a 10-minute timer. You can still eat after â this is about making space, not restriction.", icon: "â³" },
+      { title: "Name the Feeling", desc: "What emotion is underneath right now? Say it out loud. Sometimes naming it loosens its grip.", icon: "ð¬" },
+      { title: "Move Gently", desc: "Stand up, stretch, walk to another room. A small shift in your body can shift your mind.", icon: "ð¶" },
+      { title: "Self-Compassion", desc: "Put your hand on your chest. Say: 'This is hard. I'm doing my best. I deserve kindness right now.'", icon: "ð¤" },
+    ];
+
+    // ââ Storage ââ
+    const DB_KEY = "nourish_entries";
+    function loadEntries() {
+      try { return JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch { return []; }
+    }
+    function saveEntries(entries) {
+      localStorage.setItem(DB_KEY, JSON.stringify(entries));
+    }
+
+    // ââ State ââ
+    let entries = loadEntries();
+    let view = "home"; // home | insights | checkin | urge
+    let checkinStep = 0;
+    let checkinData = { mood: null, hunger: null, ate: null, triggers: [], note: "" };
+    let urgeStep = 0;
+    let selectedStrategy = null;
+    let breathPhase = "idle";
+    let breathCount = 0;
+    let breathTimer = null;
+    let showSaveToast = false;
+    let activeTab = "home";
+
+    // ââ Helpers ââ
+    function fmtTime(d) { return new Date(d).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+    function fmtDate(d) {
+      const dt = new Date(d), today = new Date(), yest = new Date(today);
+      yest.setDate(yest.getDate() - 1);
+      if (dt.toDateString() === today.toDateString()) return "Today";
+      if (dt.toDateString() === yest.toDateString()) return "Yesterday";
+      return dt.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+    }
+    function groupByDate(arr) {
+      const g = {};
+      arr.forEach(e => { const k = fmtDate(e.timestamp); if (!g[k]) g[k] = []; g[k].push(e); });
+      return g;
+    }
+
+    // ââ Render ââ
+    const $ = document.getElementById.bind(document);
+    function render() {
+      const app = $("app");
+      if (view === "checkin") { app.innerHTML = renderCheckin(); bindCheckin(); }
+      else if (view === "urge") { app.innerHTML = renderUrge(); bindUrge(); }
+      else { app.innerHTML = renderHome(); bindHome(); }
+    }
+
+    // ââ HOME ââ
+    function renderHome() {
+      const todayE = entries.filter(e => new Date(e.timestamp).toDateString() === new Date().toDateString());
+      const grouped = groupByDate(entries);
+      const todayEmojis = todayE.slice(0, 5).map(e => `<span style="font-size:22px">${e.mood?.emoji || ""}</span>`).join("");
+
+      let content = "";
+      if (activeTab === "home") {
+        if (entries.length === 0) {
+          content = `<div class="empty-state"><p class="icon">ð±</p><p class="body-text" style="color:#AAB5AD">Your first check-in starts the journey.<br>No pressure. Whenever you're ready.</p></div>`;
+        } else {
+          content = Object.entries(grouped).map(([date, ents]) =>
+            `<p style="font-size:12px;font-weight:500;color:#AAB5AD;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">${date}</p>` +
+            ents.map(e => `
+              <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <span style="font-size:24px">${e.mood?.emoji || ""}</span>
+                  <span style="font-size:12px;color:#AAB5AD">${fmtTime(e.timestamp)}</span>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <span class="tag">${e.mood?.label || ""}</span>
+                  <span class="tag">Hunger: ${e.hunger || ""}</span>
+                  ${e.ate ? `<span class="tag">${e.ate}</span>` : ""}
+                  ${(e.triggers || []).map(t => `<span class="tag tag-trigger">${t}</span>`).join("")}
+                </div>
+                ${e.note ? `<p style="font-size:13px;color:#7A8A7E;margin-top:10px;line-height:1.5;font-style:italic">"${e.note}"</p>` : ""}
+              </div>
+            `).join("")
+          ).join("");
+        }
+      } else {
+        content = renderInsights();
+      }
+
+      return `
+        <div style="padding:36px 24px 20px">
+          <h1>Nourish</h1>
+          <p class="subtitle">Gentle awareness, one check-in at a time</p>
+        </div>
+        ${showSaveToast ? `<div class="save-toast">â Check-in saved</div>` : ""}
+        <div class="px" style="display:flex;gap:12px;margin-bottom:24px">
+          <button class="btn btn-primary" style="flex:1" id="startCheckin"><span style="font-size:18px">+</span> Check In</button>
+          <button class="btn btn-urge" style="flex:1" id="startUrge"><span style="font-size:16px">ð¿</span> Need Support</button>
+        </div>
+        <div class="px" style="margin-bottom:24px">
+          <div class="summary-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h3>Today's check-ins</h3>
+                <p style="font-family:'Fraunces',serif;font-size:36px;font-weight:300;margin-top:4px">${todayE.length}</p>
+              </div>
+              ${todayE.length > 0 ? `<div style="display:flex;gap:4px">${todayEmojis}</div>` : ""}
+            </div>
+          </div>
+        </div>
+        <div class="px" style="display:flex;gap:0;margin-bottom:20px">
+          <button class="tab ${activeTab === 'home' ? 'active' : ''}" data-tab="home">Home</button>
+          <button class="tab ${activeTab === 'insights' ? 'active' : ''}" data-tab="insights">Insights</button>
+        </div>
+        <div class="px" style="padding-bottom:40px">${content}</div>
+      `;
+    }
+
+    function renderInsights() {
+      const moodCounts = {}, triggerCounts = {};
+      entries.forEach(e => {
+        if (e.mood?.label) moodCounts[e.mood.label] = (moodCounts[e.mood.label] || 0) + 1;
+        (e.triggers || []).forEach(t => { triggerCounts[t] = (triggerCounts[t] || 0) + 1; });
+      });
+      const topMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const topTriggers = Object.entries(triggerCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+      const moodBars = topMoods.map(([mood, count]) => {
+        const m = MOODS.find(x => x.label === mood);
+        return `
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <span style="font-size:20px">${m?.emoji || ""}</span>
+            <div style="flex:1"><div class="bar-track"><div class="bar-fill" style="background:${m?.color || '#7BA889'};width:${(count / entries.length) * 100}%"></div></div></div>
+            <span style="font-size:12px;color:#AAB5AD;min-width:30px">${count}Ã</span>
+          </div>
+        `;
+      }).join("");
+
+      const triggerTags = topTriggers.map(([t, c]) =>
+        `<span class="tag tag-trigger" style="font-size:13px;padding:6px 14px">${t} (${c})</span>`
+      ).join("");
+
+      return `
+        <div class="fade-up">
+          <h2>Patterns</h2>
+          <p class="body-text" style="margin-bottom:28px">${entries.length < 3 ? "Keep checking in â patterns emerge after a few entries." : `Based on ${entries.length} check-ins.`}</p>
+          ${topMoods.length > 0 ? `<div style="margin-bottom:28px"><h3 style="margin-bottom:12px">Most common moods</h3>${moodBars}</div>` : ""}
+          ${topTriggers.length > 0 ? `<div><h3 style="margin-bottom:12px">Top triggers</h3><div style="display:flex;gap:8px;flex-wrap:wrap">${triggerTags}</div></div>` : ""}
+        </div>
+      `;
+    }
+
+    function bindHome() {
+      $("startCheckin")?.addEventListener("click", () => { view = "checkin"; checkinStep = 0; checkinData = { mood: null, hunger: null, ate: null, triggers: [], note: "" }; render(); });
+      $("startUrge")?.addEventListener("click", () => { view = "urge"; urgeStep = 0; selectedStrategy = null; render(); });
+      document.querySelectorAll("[data-tab]").forEach(btn => {
+        btn.addEventListener("click", () => { activeTab = btn.dataset.tab; render(); });
+      });
+    }
+
+    // ââ CHECK-IN ââ
+    function renderCheckin() {
+      const steps = [renderMoodStep, renderHungerStep, renderAteStep, renderTriggerStep, renderNoteStep];
+      const canProceed = [checkinData.mood !== null, checkinData.hunger !== null, checkinData.ate !== null, true, true];
+      const isLast = checkinStep === steps.length - 1;
+
+      return `
+        <div style="padding:32px 24px" class="fade-up">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+            <button class="btn-back" id="checkinBack">${checkinStep > 0 ? "â Back" : "â Cancel"}</button>
+            <span style="font-size:13px;color:#AAB5AD">${checkinStep + 1} / ${steps.length}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${((checkinStep + 1) / steps.length) * 100}%"></div></div>
+          ${steps[checkinStep]()}
+          <div style="margin-top:28px">
+            ${isLast
+              ? `<button class="btn btn-primary" id="checkinSubmit">Save Check-in</button>`
+              : `<button class="btn btn-primary" id="checkinNext" ${canProceed[checkinStep] ? "" : "disabled"}>Continue</button>`
+            }
+            ${checkinStep === 3 ? `<button class="btn btn-secondary" style="margin-top:10px" id="checkinSkip">Skip</button>` : ""}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMoodStep() {
+      return `<h2>How are you feeling?</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px">
+          ${MOODS.map((m, i) => `
+            <button class="chip ${checkinData.mood === i ? 'selected' : ''}" data-mood="${i}"
+              style="${checkinData.mood === i ? `background:${m.color}22;border-color:${m.color}` : ''}">
+              <span style="font-size:22px">${m.emoji}</span> ${m.label}
+            </button>
+          `).join("")}
+        </div>`;
+    }
+    function renderHungerStep() {
+      return `<h2>How hungry are you physically?</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
+          ${HUNGER.map((h, i) => `
+            <button class="chip ${checkinData.hunger === i ? 'selected' : ''}" data-hunger="${i}" style="width:100%;justify-content:flex-start">
+              <span style="width:32px;text-align:center;font-size:13px;opacity:0.5">${i + 1}</span> ${h}
+            </button>
+          `).join("")}
+        </div>`;
+    }
+    function renderAteStep() {
+      const options = ["Yes â a meal", "Yes â a snack", "No"];
+      return `<h2>Did you eat recently?</h2>
+        <div style="display:flex;gap:12px;margin-top:20px">
+          ${options.map(o => `
+            <button class="chip ${checkinData.ate === o ? 'selected' : ''}" data-ate="${o}" style="flex:1;flex-direction:column;padding:16px 12px;justify-content:center">${o}</button>
+          `).join("")}
+        </div>`;
+    }
+    function renderTriggerStep() {
+      return `<h2>Notice any triggers?</h2>
+        <p class="body-text" style="margin-bottom:16px">Select any that apply, or skip.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${TRIGGERS.map(t => `
+            <button class="chip ${checkinData.triggers.includes(t) ? 'selected' : ''}" data-trigger="${t}">${t}</button>
+          `).join("")}
+        </div>`;
+    }
+    function renderNoteStep() {
+      return `<h2>Anything else on your mind?</h2>
+        <p class="body-text" style="margin-bottom:16px">Totally optional. Just a space if you need it.</p>
+        <textarea id="noteInput" rows="4" placeholder="How are you really doing right now...">${checkinData.note}</textarea>`;
+    }
+
+    function bindCheckin() {
+      $("checkinBack")?.addEventListener("click", () => {
+        if (checkinStep > 0) { checkinStep--; render(); }
+        else { view = "home"; render(); }
+      });
+      $("checkinNext")?.addEventListener("click", () => { checkinStep++; render(); });
+      $("checkinSkip")?.addEventListener("click", () => { checkinStep++; render(); });
+      $("checkinSubmit")?.addEventListener("click", () => {
+        const noteEl = $("noteInput");
+        if (noteEl) checkinData.note = noteEl.value;
+        const entry = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          mood: MOODS[checkinData.mood],
+          hunger: HUNGER[checkinData.hunger],
+          ate: checkinData.ate,
+          triggers: checkinData.triggers,
+          note: checkinData.note,
+        };
+        entries.unshift(entry);
+        saveEntries(entries);
+        view = "home";
+        showSaveToast = true;
+        render();
+        setTimeout(() => { showSaveToast = false; render(); }, 2000);
+      });
+      document.querySelectorAll("[data-mood]").forEach(btn => {
+        btn.addEventListener("click", () => { checkinData.mood = parseInt(btn.dataset.mood); render(); });
+      });
+      document.querySelectorAll("[data-hunger]").forEach(btn => {
+        btn.addEventListener("click", () => { checkinData.hunger = parseInt(btn.dataset.hunger); render(); });
+      });
+      document.querySelectorAll("[data-ate]").forEach(btn => {
+        btn.addEventListener("click", () => { checkinData.ate = btn.dataset.ate; render(); });
+      });
+      document.querySelectorAll("[data-trigger]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const t = btn.dataset.trigger;
+          if (checkinData.triggers.includes(t)) checkinData.triggers = checkinData.triggers.filter(x => x !== t);
+          else checkinData.triggers.push(t);
+          render();
+        });
+      });
+    }
+
+    // ââ URGE SUPPORT ââ
+    function renderUrge() {
+      if (urgeStep === 0) return renderUrgeIntro();
+      if (urgeStep === 1) return renderBreathing();
+      if (selectedStrategy) return renderStrategyDetail();
+      return renderStrategies();
+    }
+
+    function renderUrgeIntro() {
+      return `
+        <div style="padding:32px 24px" class="fade-up">
+          <button class="btn-back" id="urgeBack">â Back</button>
+          <h2>You're here. That's a good step.</h2>
+          <p class="body-text" style="margin-bottom:32px">Let's slow things down together. No judgment â just some space to breathe.</p>
+          <button class="btn btn-primary" style="margin-bottom:16px" id="startBreath">Start with a breath exercise</button>
+          <button class="btn btn-secondary" id="showStrategies">Show me coping strategies</button>
+        </div>
+      `;
+    }
+
+    function renderBreathing() {
+      const labels = { idle: "Ready", "in": "Breathe in", hold: "Hold", out: "Breathe out", done: "Well done" };
+      const bgs = { idle: "rgba(123,168,137,0.1)", "in": "rgba(123,168,137,0.3)", hold: "rgba(123,168,137,0.5)", out: "rgba(123,168,137,0.15)", done: "rgba(123,168,137,0.4)" };
+      const scales = { idle: "scale(1)", "in": "scale(1.3)", hold: "scale(1.3)", out: "scale(0.9)", done: "scale(1)" };
+
+      return `
+        <div style="padding:32px 24px;text-align:center" class="fade-up">
+          <button class="btn-back" id="breathBack">â Back</button>
+          <div class="breath-circle" style="background:${bgs[breathPhase]};transform:${scales[breathPhase]}">
+            <span class="breath-label">${labels[breathPhase]}</span>
+          </div>
+          <p class="body-text" style="color:#8A9A8E">${breathPhase === "done" ? "4 breaths complete. How do you feel?" : `Breath ${breathCount + 1} of 4`}</p>
+          ${breathPhase === "done" ? `
+            <div style="margin-top:24px">
+              <button class="btn btn-primary" id="toStrategies" style="margin-bottom:12px">Explore coping strategies</button>
+              <button class="btn btn-secondary" id="feelBetter">I'm feeling better</button>
+            </div>
+          ` : ""}
+        </div>
+      `;
+    }
+
+    function renderStrategies() {
+      return `
+        <div style="padding:32px 24px" class="fade-up">
+          <button class="btn-back" id="stratBack">â Back</button>
+          <h2>Choose what feels right</h2>
+          <p class="body-text" style="margin-bottom:24px">No pressure. Just options.</p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            ${STRATEGIES.map((s, i) => `
+              <button class="strategy-btn" data-strat="${i}">
+                <span style="font-size:28px">${s.icon}</span>
+                <span>${s.title}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStrategyDetail() {
+      const s = selectedStrategy;
+      return `
+        <div style="padding:32px 24px" class="fade-up">
+          <button class="btn-back" id="detailBack">â Back</button>
+          <div style="font-size:48px;margin-bottom:20px;margin-top:16px">${s.icon}</div>
+          <h2 style="margin-bottom:12px">${s.title}</h2>
+          <p class="body-text" style="font-size:17px;line-height:1.7;margin-bottom:32px">${s.desc}</p>
+          <button class="btn btn-primary" id="feelBetter2">I'm feeling better</button>
+        </div>
+      `;
+    }
+
+    function startBreathing() {
+      breathPhase = "idle"; breathCount = 0;
+      if (breathTimer) clearTimeout(breathTimer);
+      const phases = [
+        { phase: "in", duration: 4000 },
+        { phase: "hold", duration: 4000 },
+        { phase: "out", duration: 6000 },
+      ];
+      let idx = 0, count = 0;
+      function runPhase() {
+        if (count >= 4) { breathPhase = "done"; render(); return; }
+        breathPhase = phases[idx].phase;
+        render();
+        breathTimer = setTimeout(() => {
+          idx++;
+          if (idx >= phases.length) { idx = 0; count++; breathCount = count; }
+          runPhase();
+        }, phases[idx].duration);
+      }
+      runPhase();
+    }
+
+    function bindUrge() {
+      $("urgeBack")?.addEventListener("click", () => { view = "home"; render(); });
+      $("startBreath")?.addEventListener("click", () => { urgeStep = 1; startBreathing(); });
+      $("showStrategies")?.addEventListener("click", () => { urgeStep = 2; selectedStrategy = null; render(); });
+      $("breathBack")?.addEventListener("click", () => { if (breathTimer) clearTimeout(breathTimer); urgeStep = 0; breathPhase = "idle"; render(); });
+      $("toStrategies")?.addEventListener("click", () => { urgeStep = 2; selectedStrategy = null; render(); });
+      $("feelBetter")?.addEventListener("click", () => { view = "home"; render(); });
+      $("feelBetter2")?.addEventListener("click", () => { view = "home"; render(); });
+      $("stratBack")?.addEventListener("click", () => { urgeStep = 0; render(); });
+      $("detailBack")?.addEventListener("click", () => { selectedStrategy = null; render(); });
+      document.querySelectorAll("[data-strat]").forEach(btn => {
+        btn.addEventListener("click", () => { selectedStrategy = STRATEGIES[parseInt(btn.dataset.strat)]; render(); });
+      });
+    }
+
+    // ââ Init ââ
+    render();
+
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>
