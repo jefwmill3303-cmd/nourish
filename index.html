@@ -12,88 +12,148 @@
   <title>Nourish</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap" rel="stylesheet" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { 
-      height: 100%; 
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%;
       overflow-x: hidden;
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(180deg, #F4F1EC 0%, #EBE8E2 50%, #E8E5DF 100%);
-      color: #3D4F44;
+      background: #F5F2ED;
+      color: #2C3830;
     }
     body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes breatheIn {
-      from { transform: scale(0.9); background: rgba(123,168,137,0.1); }
-      to { transform: scale(1.3); background: rgba(123,168,137,0.3); }
+    .fade-up { animation: fadeUp 0.35s ease-out; }
+
+    .app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 48px; }
+
+    h1 { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400; letter-spacing: -0.8px; color: #2C3830; }
+    h2 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; letter-spacing: -0.4px; margin-bottom: 8px; color: #2C3830; }
+    h3 { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; color: #9EA69F; text-transform: uppercase; letter-spacing: 1.2px; }
+
+    .subtitle { font-size: 15px; color: #9EA69F; margin-top: 6px; font-weight: 300; }
+    .body-text { font-size: 15px; color: #6B7A70; line-height: 1.6; }
+
+    /* ââ Buttons ââ */
+    button { font-family: 'DM Sans', sans-serif; }
+
+    .btn {
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+      border: none; border-radius: 12px; padding: 16px 24px; cursor: pointer;
+      transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; letter-spacing: 0.01em;
     }
-    @keyframes breatheHold {
-      from, to { transform: scale(1.3); background: rgba(123,168,137,0.5); }
+    .btn-primary { background: #6B8F77; color: #fff; }
+    .btn-primary:hover { background: #5E8069; }
+    .btn-primary:active { background: #52745E; transform: scale(0.985); }
+    .btn-primary:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+    .btn-secondary { background: transparent; color: #6B8F77; border: 1.5px solid rgba(107,143,119,0.25); font-weight: 400; }
+    .btn-secondary:hover { background: rgba(107,143,119,0.06); }
+    .btn-secondary:active { background: rgba(107,143,119,0.1); transform: scale(0.985); }
+
+    .btn-urge { background: #EDEAE5; color: #4A5D50; border: none; font-weight: 400; }
+    .btn-urge:hover { background: #E5E2DC; }
+    .btn-urge:active { background: #DDD9D3; transform: scale(0.985); }
+
+    .btn-back { background: none; border: none; font-size: 14px; color: #9EA69F; cursor: pointer; padding: 4px 0; margin-bottom: 12px; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+    .btn-back:hover { color: #6B7A70; }
+
+    /* ââ Chips ââ */
+    .chip {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-radius: 10px;
+      border: 1.5px solid rgba(44,56,48,0.08); background: #fff;
+      cursor: pointer; transition: all 0.15s ease; color: #6B7A70;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    @keyframes breatheOut {
-      from { transform: scale(1.3); background: rgba(123,168,137,0.5); }
-      to { transform: scale(0.9); background: rgba(123,168,137,0.15); }
+    .chip:hover { border-color: rgba(44,56,48,0.14); background: #FAFAF8; }
+    .chip.selected { background: rgba(107,143,119,0.1); border-color: rgba(107,143,119,0.35); color: #2C3830; box-shadow: 0 1px 3px rgba(107,143,119,0.1); }
+    .chip:active { transform: scale(0.975); }
+
+    /* ââ Tags ââ */
+    .tag {
+      font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px;
+      background: rgba(107,143,119,0.08); color: #5E8069;
+      display: inline-block; letter-spacing: 0.02em;
     }
-    .fade-up { animation: fadeUp 0.4s ease; }
+    .tag-trigger { background: rgba(168,120,100,0.1); color: #8A6E5E; }
 
-    .app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 40px; }
-
-    h1 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 300; letter-spacing: -0.5px; }
-    h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 300; letter-spacing: -0.3px; margin-bottom: 6px; }
-    h3 { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: #AAB5AD; text-transform: uppercase; letter-spacing: 0.8px; }
-
-    .subtitle { font-size: 14px; color: #AAB5AD; margin-top: 4px; }
-    .body-text { font-size: 14px; color: #7A8A7E; line-height: 1.5; }
-æ'Fâ°¢föçBÖfÖÇ¢tDÒ6ç2rÂ6ç2×6W&c²föçB×6¦S¢G²föçB×vVvC¢S°¢&÷&FW#¢æöæS²&÷&FW"×&FW3¢G²FFæs¢G#²7W'6÷#¢öçFW#°¢G&ç6Föã¢ÆÂã'2V6S²F7Æ¢fÆW²ÆvâÖFV×3¢6VçFW#²§W7FgÖ6öçFVçC¢6VçFW#²v¢°¢vGF¢S°¢Ð¢æ'Fâ×&Ö'²&6¶w&÷VæC¢3t$²6öÆ÷#¢6ffc²Ð¢æ'Fâ×&Ö'¦7FfR²&6¶w&÷VæC¢3ds²G&ç6f÷&Ó¢66ÆRã²Ð¢æ'Fâ×&Ö'¦F6&ÆVB²÷6G¢ãC²7W'6÷#¢FVfVÇC²Ð¢æ'Fâ×6V6öæF'²&6¶w&÷VæC¢G&ç7&VçC²6öÆ÷#¢3t$²&÷&FW#¢6öÆB&v&#2ÃcÃ3rÃã2²föçB×vVvC¢C²Ð¢æ'Fâ×6V6öæF'¦7FfR²&6¶w&÷VæC¢&v&#2ÃcÃ3rÃã²Ð¢æ'Fâ×W&vR²&6¶w&÷VæC¢&v&#2ÃcÃ3rÃã²6öÆ÷#¢3Ttc3²&÷&FW#¢6öÆB&v&#2ÃcÃ3rÃã"²föçB×vVvC¢C²Ð¢æ'Fâ×W&vS¦7FfR²&6¶w&÷VæC¢&v&#2ÃcÃ3rÃãR²Ð¢æ'FâÖ&6²²&6¶w&÷VæC¢æöæS²&÷&FW#¢æöæS²föçB×6¦S¢7²6öÆ÷#¢4#TC²7W'6÷#¢öçFW#²FFæs¢²Ö&vâÖ&÷GFöÓ¢²föçBÖfÖÇ¢tDÒ6ç2rÂ6ç2×6W&c²Ð ¢æ6°¢föçBÖfÖÇ¢tDÒ6ç2rÂ6ç2×6W&c²föçB×6¦S¢G°¢F7Æ¢fÆW²ÆvâÖFV×3¢6VçFW#²v¢°¢FFæs¢g²&÷&FW"×&FW3¢'°¢&÷&FW#¢6öÆB&v&ÃÃÃãb²&6¶w&÷VæC¢&v&ÃÃÃã2°¢7W'6÷#¢öçFW#²G&ç6Föã¢ÆÂãW2V6S²6öÆ÷#¢3ttS°¢Ð¢æ6ç6VÆV7FVB²&6¶w&÷VæC¢&v&#2ÃcÃ3rÃãR²&÷&FW"Ö6öÆ÷#¢&v&#2ÃcÃ3rÃãB²6öÆ÷#¢34CDcCC²Ð¢æ6¦7FfR²G&ç6f÷&Ó¢66ÆRãr²Ð ¢çFr°¢föçB×6¦S¢²FFæs¢G²&÷&FW"×&FW3¢°¢&6¶w&÷VæC¢&v&#2ÃcÃ3rÃã²6öÆ÷#¢3ds#°¢F7Æ¢æÆæRÖ&Æö6³°¢Ð¢çFr×G&vvW"²&6¶w&÷VæC¢&v&BÃ#BÃ#BÃã²6öÆ÷#¢3dd²Ð ¢æ6&B°¢&6¶w&÷VæC¢&v&#SRÃ#SRÃ#SRÃãr²&÷&FW#¢6öÆB&v&#2ÃcÃ3rÃã"°¢&÷&FW"×&FW3¢g²FFæs¢g²Ö&vâÖ&÷GFöÓ¢°¢Ð ¢ç7VÖÖ'Ö6&B°¢&6¶w&÷VæC¢&v&#2ÃcÃ3rÃãb²&÷&FW#¢6öÆB&v&#2ÃcÃ3rÃã°¢&÷&FW"×&FW3¢#²FFæp: 20px 22px;
+    /* ââ Cards ââ */
+    .card {
+      background: #fff; border: none;
+      border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
     }
 
-    .progress-bar { height: 3px; background: rgba(0,0,0,0.05); border-radius: 2px; margin-bottom: 28px; }
-    .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #7BA889, #96C4A0); transition: width 0.4s ease; }
+    .summary-card {
+      background: #fff; border: none;
+      border-radius: 16px; padding: 22px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+    }
 
+    /* ââ Progress ââ */
+    .progress-bar { height: 2px; background: rgba(0,0,0,0.06); border-radius: 1px; margin-bottom: 32px; }
+    .progress-fill { height: 100%; border-radius: 1px; background: #6B8F77; transition: width 0.4s ease; }
+
+    /* ââ Tabs ââ */
     .tab {
       font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
       background: none; border: none; cursor: pointer;
-      padding: 8px 16px; border-radius: 20px;
-      color: #AAB5AD; transition: all 0.2s ease; text-transform: capitalize;
+      padding: 8px 18px; border-radius: 8px;
+      color: #9EA69F; transition: all 0.2s ease; text-transform: capitalize;
     }
-    .tab.active { color: #3D4F44; background: rgba(123,168,137,0.1); }
+    .tab:hover { color: #6B7A70; }
+    .tab.active { color: #2C3830; background: rgba(107,143,119,0.08); font-weight: 500; }
 
+    /* ââ Textarea ââ */
     textarea {
-      font-family: 'DM Sans', sans-serif; font-size: 14px;
-      width: 100%; border: 1px solid rgba(123,168,137,0.2); border-radius: 14px;
-      padding: 14px 16px; background: rgba(255,255,255,0.5); color: #3D4F44;
-      resize: vertical; outline: none; line-height: 1.5;
+      font-family: 'DM Sans', sans-serif; font-size: 15px;
+      width: 100%; border: 1.5px solid rgba(44,56,48,0.1); border-radius: 12px;
+      padding: 16px 18px; background: #fff; color: #2C3830;
+      resize: vertical; outline: none; line-height: 1.6;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    textarea:focus { border-color: rgba(123,168,137,0.5); }
+    textarea::placeholder { color: #B5BBB7; }
+    textarea:focus { border-color: rgba(107,143,119,0.4); box-shadow: 0 0 0 3px rgba(107,143,119,0.08); }
 
+    /* ââ Breathing ââ */
     .breath-circle {
-      width: 200px; height: 200px; border-radius: 50%; margin: 40px auto;
+      width: 200px; height: 200px; border-radius: 50%; margin: 48px auto;
       display: flex; align-items: center; justify-content: center;
-      border: 2px solid rgba(123,168,137,0.3); transition: all 3s ease-in-out;
+      border: 1.5px solid rgba(107,143,119,0.2); transition: all 3s ease-in-out;
     }
-    .breath-label { font-family: 'Fraunces', serif; font-size: 22px; color: #4A5D52; font-weight: 300; }
+    .breath-label { font-family: 'Fraunces', serif; font-size: 22px; color: #4A5D52; font-weight: 400; }
 
+    /* ââ Strategy Buttons ââ */
     .strategy-btn {
-      background: rgba(123,168,137,0.08); border: 1px solid rgba(123,168,137,0.15);
-      border-radius: 16px; padding: 16px 20px; text-align: left; cursor: pointer;
-      display: flex; align-items: center; gap: 14px; width: 100%;
-      transition: all 0.2s ease; font-family: 'DM Sans', sans-serif; font-size: 15px; color: #3D4F44;
+      background: #fff; border: 1.5px solid rgba(44,56,48,0.06);
+      border-radius: 14px; padding: 18px 22px; text-align: left; cursor: pointer;
+      display: flex; align-items: center; gap: 16px; width: 100%;
+      transition: all 0.2s ease; font-family: 'DM Sans', sans-serif; font-size: 15px; color: #2C3830;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-    .strategy-btn:active { background: rgba(123,168,137,0.18); }
+    .strategy-btn:hover { background: #FAFAF8; border-color: rgba(44,56,48,0.1); }
+    .strategy-btn:active { background: #F5F2ED; transform: scale(0.985); }
 
+    /* ââ Toast ââ */
     .save-toast {
-      padding: 10px 24px; background: rgba(123,168,137,0.1);
-      font-size: 13px; color: #7BA889; text-align: center; animation: fadeUp 0.3s ease;
+      padding: 12px 24px; background: rgba(107,143,119,0.08);
+      font-size: 14px; color: #6B8F77; text-align: center; animation: fadeUp 0.3s ease;
+      font-weight: 500;
     }
 
-    .bar-track { height: 8px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    /* ââ Bars ââ */
+    .bar-track { height: 6px; background: rgba(0,0,0,0.04); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
-    .empty-state { text-align: center; padding: 40px 0; }
-    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    /* ââ Empty State ââ */
+    .empty-state { text-align: center; padding: 48px 0; }
+    .empty-state .icon { font-size: 44px; margin-bottom: 16px; }
 
     .px { padding-left: 24px; padding-right: 24px; }
   </style>
