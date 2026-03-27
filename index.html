@@ -157,6 +157,37 @@
     .empty-state .icon { font-size: 44px; margin-bottom: 16px; }
 
     .px { padding-left: 24px; padding-right: 24px; }
+
+ /* ── Streak ── */
+ .streak-hero {
+   background: linear-gradient(135deg, #6B8F77 0%, #4A6E55 100%);
+   border-radius: 18px; padding: 28px 24px; color: #fff;
+   position: relative; overflow: hidden;
+ }
+ .streak-hero::before {
+   content: ''; position: absolute; top: -30%; right: -10%;
+   width: 180px; height: 180px; border-radius: 50%;
+   background: rgba(255,255,255,0.06);
+ }
+ .streak-count {
+   font-family: 'Fraunces', serif; font-size: 64px; font-weight: 300;
+   line-height: 1; letter-spacing: -2px;
+ }
+ .streak-label { font-size: 14px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+ .streak-msg { font-size: 14px; font-weight: 300; opacity: 0.7; margin-top: 12px; font-style: italic; }
+ .streak-toggle {
+   display: inline-flex; align-items: center; gap: 8px;
+   margin-top: 16px; padding: 10px 20px; border-radius: 10px;
+   border: 1.5px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1);
+   color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px;
+   font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+   backdrop-filter: blur(4px);
+ }
+ .streak-toggle:hover { background: rgba(255,255,255,0.18); }
+ .streak-toggle:active { transform: scale(0.97); }
+ .streak-toggle.marked {
+   background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5);
+ }
   </style>
 </head>
 <body>
@@ -203,6 +234,66 @@
 
     // ── Storage ──
     const DB_KEY = "nourish_entries";
+
+    const STREAK_KEY = "nourish_streak";
+    function loadStreak() {
+      try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || []; } catch { return []; }
+    }
+    function saveStreak(dates) { localStorage.setItem(STREAK_KEY, JSON.stringify(dates)); }
+    function todayStr() { return new Date().toISOString().slice(0, 10); }
+    function isTodayMarked() { return loadStreak().includes(todayStr()); }
+    function toggleToday() {
+      let dates = loadStreak();
+      const today = todayStr();
+      if (dates.includes(today)) { dates = dates.filter(d => d !== today); }
+      else { dates.push(today); dates.sort(); }
+      saveStreak(dates);
+      syncStreakToCloud();
+      render();
+    }
+    function getStreakCount() {
+      const dates = loadStreak();
+      if (dates.length === 0) return 0;
+      const sorted = [...dates].sort().reverse();
+      const today = todayStr();
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
+      let count = 1;
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const diff = (new Date(sorted[i]) - new Date(sorted[i + 1])) / 86400000;
+        if (diff === 1) count++;
+        else break;
+      }
+      return count;
+    }
+    function getStreakMessage(count) {
+      if (count === 0) return "Today is a new opportunity.";
+      if (count === 1) return "One day at a time. You've got this.";
+      if (count <= 3) return "Building momentum. Keep going.";
+      if (count <= 7) return "A whole week within reach. Incredible.";
+      if (count <= 14) return "Two weeks of strength. You should be proud.";
+      if (count <= 30) return "A month of progress. That takes real courage.";
+      return "You are living proof that change is possible.";
+    }
+    async function syncStreakToCloud() {
+      if (!sb) return;
+      try {
+        const { error } = await sb.from('streak').upsert({ id: 'binge_free', dates: loadStreak(), updated_at: new Date().toISOString() }, { onConflict: 'id' });
+        if (error) console.warn('[nourish streak push]', error);
+      } catch(e) { console.warn("[nourish streak]", e); }
+    }
+    async function syncStreakFromCloud() {
+      if (!sb) return;
+      try {
+        const { data, error } = await sb.from('streak').select('dates').eq('id', 'binge_free').single();
+        if (error && error.code !== 'PGRST116') { console.warn('[nourish streak pull]', error); return; }
+        if (data && data.dates) {
+          const merged = [...new Set([...loadStreak(), ...data.dates])].sort();
+          saveStreak(merged);
+        }
+      } catch(e) { console.warn("[nourish streak]", e); }
+    }
+
 
     function loadLocal() {
       try { return JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch { return []; }
@@ -396,7 +487,8 @@
 
     function bindHome() {
       $("startCheckin")?.addEventListener("click", () => { view = "checkin"; checkinStep = 0; checkinData = { mood: null, hunger: null, ate: null, triggers: [], note: "" }; render(); });
-      $("startUrge")?.addEventListener("click", () => { view = "urge"; urgeStep = 0; selectedStrategy = null; render(); });
+      $("streakToggle")?.addEventListener("click", () => { toggleToday(); });
+    $("startUrge")?.addEventListener("click", () => { view = "urge"; urgeStep = 0; selectedStrategy = null; render(); });
       document.querySelectorAll("[data-tab]").forEach(btn => {
         btn.addEventListener("click", () => { activeTab = btn.dataset.tab; render(); });
       });
@@ -632,6 +724,7 @@
 
     // Background cloud sync — merges any cloud entries after first paint
     syncFromCloud().then(() => pushAllToCloud());
+    syncStreakFromCloud();
 
     // Register service worker
     if ("serviceWorker" in navigator) {
