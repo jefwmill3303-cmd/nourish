@@ -188,6 +188,15 @@
  .streak-toggle.marked {
    background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5);
  }
+    .streak-days { display: flex; gap: 4px; margin-top: 18px; justify-content: space-between; }
+    .streak-day { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px 2px; border-radius: 8px; transition: all 0.15s ease; flex: 1; }
+    .streak-day:hover { background: rgba(255,255,255,0.1); }
+    .streak-day:active { transform: scale(0.92); }
+    .streak-day-label { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
+    .streak-day-circle { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; transition: all 0.15s ease; }
+    .streak-day.checked .streak-day-circle { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.6); }
+    .streak-day.today .streak-day-label { opacity: 0.9; font-weight: 600; }
+
   </style>
 </head>
 <body>
@@ -251,7 +260,39 @@
       syncStreakToCloud();
       render();
     }
-    function getStreakCount() {
+    function toggleDate(dateStr) {
+  let dates = loadStreak();
+  if (dates.includes(dateStr)) {
+    dates = dates.filter(d => d !== dateStr);
+  } else {
+    dates.push(dateStr);
+    dates.sort();
+  }
+  saveStreak(dates);
+  syncStreakToCloud();
+  render();
+}
+
+function getLast7Days() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  return days;
+}
+
+function getDayLabel(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString([], { weekday: 'short' }).charAt(0);
+}
+
+function getDayNum(dateStr) {
+  return parseInt(dateStr.slice(-2));
+}
+
+function getStreakCount() {
       const dates = loadStreak();
       if (dates.length === 0) return 0;
       const sorted = [...dates].sort().reverse();
@@ -441,6 +482,14 @@
         <button class="streak-toggle ${isTodayMarked() ? 'marked' : ''}" id="streakToggle">
           ${isTodayMarked() ? '\u2713 Today marked' : '\u25CB Mark today binge-free'}
         </button>
+          <div class="streak-days">
+            ${getLast7Days().map(d => `
+              <div class="streak-day ${loadStreak().includes(d) ? 'checked' : ''} ${d === todayStr() ? 'today' : ''}" data-streak-day="${d}">
+                <span class="streak-day-label">${getDayLabel(d)}</span>
+                <div class="streak-day-circle">${loadStreak().includes(d) ? '\u2713' : getDayNum(d)}</div>
+              </div>
+            `).join('')}
+          </div>
       </div>
     </div>
     
@@ -505,6 +554,9 @@
     function bindHome() {
       $("startCheckin")?.addEventListener("click", () => { view = "checkin"; checkinStep = 0; checkinData = { mood: null, hunger: null, ate: null, triggers: [], note: "" }; render(); });
       $("streakToggle")?.addEventListener("click", () => { toggleToday(); });
+    document.querySelectorAll("[data-streak-day]").forEach(el => {
+      el.addEventListener("click", () => { toggleDate(el.dataset.streakDay); });
+    });
     $("startUrge")?.addEventListener("click", () => { view = "urge"; urgeStep = 0; selectedStrategy = null; render(); });
       document.querySelectorAll("[data-tab]").forEach(btn => {
         btn.addEventListener("click", () => { activeTab = btn.dataset.tab; render(); });
