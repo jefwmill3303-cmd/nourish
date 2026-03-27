@@ -427,7 +427,24 @@
           <h1>Nourish</h1>
           <p class="subtitle">Gentle awareness, one check-in at a time</p>
         </div>
-        ${showSaveToast ? `<div class="save-toast">\u{2713} Check-in saved</div>` : ""}
+        <div class="px" style="margin-bottom:20px">
+      <div class="streak-hero">
+        <div style="display:flex;align-items:flex-end;gap:16px">
+          <div>
+            <span class="streak-count">${getStreakCount()}</span>
+            <p class="streak-label">${getStreakCount() === 1 ? 'day' : 'days'} binge-free</p>
+          </div>
+          <div style="flex:1"></div>
+          <div style="font-size:32px;opacity:0.3">${getStreakCount() >= 7 ? '\u{1F525}' : '\u{1F331}'}</div>
+        </div>
+        <p class="streak-msg">${getStreakMessage(getStreakCount())}</p>
+        <button class="streak-toggle ${isTodayMarked() ? 'marked' : ''}" id="streakToggle">
+          ${isTodayMarked() ? '\u2713 Today marked' : '\u25CB Mark today binge-free'}
+        </button>
+      </div>
+    </div>
+    
+    ${showSaveToast ? `<div class="save-toast">\u{2713} Check-in saved</div>` : ""}
         <div class="px" style="display:flex;gap:12px;margin-bottom:24px">
           <button class="btn btn-primary" style="flex:1" id="startCheckin"><span style="font-size:18px">+</span> Check In</button>
           <button class="btn btn-urge" style="flex:1" id="startUrge"><span style="font-size:16px">\u{1F33F}</span> Need Support</button>
